@@ -3,7 +3,10 @@ package com.dd.preparationforaadexam
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
@@ -16,6 +19,9 @@ class CreateBasicNotification : AppCompatActivity() {
     private val PRIMARY_CHANNEL_ID = "primary_notification_channel"
     private lateinit var mNotifyManager: NotificationManager
     private val NOTIFICATION_ID = 0
+    private val ACTION_UPDATE_NOTIFICATION =
+        "com.dd.preparationforaadexam.ACTION_UPDATE_NOTIFICATION"
+    private val mReceiver = NotificationReceiver()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +33,7 @@ class CreateBasicNotification : AppCompatActivity() {
 
         button_cancel.setOnClickListener { cancelNotification() }
 
+        registerReceiver(mReceiver, IntentFilter(ACTION_UPDATE_NOTIFICATION))
 
         createNotificationChannel()
         setNotificationButtonState(
@@ -34,6 +41,11 @@ class CreateBasicNotification : AppCompatActivity() {
             isUpdateEnabled = false,
             isCancelEnabled = false
         );
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(mReceiver)
+        super.onDestroy()
     }
 
     private fun createNotificationChannel() {
@@ -62,6 +74,15 @@ class CreateBasicNotification : AppCompatActivity() {
             isUpdateEnabled = true,
             isCancelEnabled = true
         );
+
+        val updateIntent = Intent(ACTION_UPDATE_NOTIFICATION)
+        val updatePendingIntent = PendingIntent.getBroadcast(
+            this,
+            NOTIFICATION_ID,
+            updateIntent,
+            PendingIntent.FLAG_ONE_SHOT
+        )
+        notifyBuilder.addAction(R.drawable.ic_launcher_background, "Update Notification", updatePendingIntent);
     }
 
     private fun getNotificationBuilder(): NotificationCompat.Builder {
@@ -81,7 +102,7 @@ class CreateBasicNotification : AppCompatActivity() {
             .setDefaults(NotificationCompat.DEFAULT_ALL) // Set the sound, vibration, and LED-color pattern for your notification (if the user's device has an LED indicator) to the default values.
     }
 
-    private fun updateNotification() {
+     fun updateNotification() {
         val androidImage = BitmapFactory.decodeResource(resources, R.drawable.mascot_1)
         val notifyBuilder = getNotificationBuilder()
         notifyBuilder.setStyle(
@@ -117,4 +138,10 @@ class CreateBasicNotification : AppCompatActivity() {
         button_cancel.isEnabled = isCancelEnabled
     }
 
+    class NotificationReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            CreateBasicNotification().updateNotification()
+        }
+    }
 }
+
