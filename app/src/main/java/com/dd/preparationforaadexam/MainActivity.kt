@@ -7,13 +7,14 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        showCustomToast()
+        showSnackbar()
     }
 
     private fun showToast() {
@@ -36,6 +37,13 @@ class MainActivity : AppCompatActivity() {
         toast.setGravity(Gravity.BOTTOM or Gravity.START, 100, 100)
         toast.view = layout
         toast.show()
+    }
+
+    private fun showSnackbar() {
+        // Create and show the snackbar
+        val snackbar = Snackbar.make(findViewById(R.id.myCoordinatorLayout),
+            "This is a snackbar", Snackbar.LENGTH_LONG)
+        snackbar.show()
     }
 
 }
