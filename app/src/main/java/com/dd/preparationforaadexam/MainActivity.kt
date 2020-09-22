@@ -1,5 +1,6 @@
 package com.dd.preparationforaadexam
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -14,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        showSnackbar()
+        showActionSnackbar()
     }
 
     private fun showToast() {
@@ -43,6 +44,18 @@ class MainActivity : AppCompatActivity() {
         // Create and show the snackbar
         val snackbar = Snackbar.make(findViewById(R.id.myCoordinatorLayout),
             "This is a snackbar", Snackbar.LENGTH_LONG)
+        snackbar.show()
+    }
+
+    private fun showActionSnackbar() {
+        // Create a snackbar that has an action item
+        val snackbar = Snackbar.make(findViewById(R.id.myCoordinatorLayout),
+            "This is a snackbar", Snackbar.LENGTH_LONG)
+        snackbar.setAction("Very Cool") {
+            Toast.makeText(applicationContext, "Snackbar Action Click!",
+                Toast.LENGTH_SHORT).show()
+        }
+        snackbar.setActionTextColor(Color.RED)
         snackbar.show()
     }
 
