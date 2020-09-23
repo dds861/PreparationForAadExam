@@ -1,122 +1,70 @@
 package com.dd.preparationforaadexam
 
-import android.app.AlertDialog
-import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
-import java.util.*
 
-class MainActivity : AppCompatActivity(), SimpleDialogFragment.SimpleDialogListener {
+class MainActivity : AppCompatActivity(), CustomDialogFragment.CustomDialogListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val simpleDialog = SimpleDialogFragment()
-        simpleDialog.show(supportFragmentManager, "SimpleDialogFragment")
-
-//        val complexDialog = SingleChoiceDialogFragment()
-//        complexDialog.show(supportFragmentManager, "SingleChoiceDialogFragment")
-
-//        showDatePickerDialog()
+        val customDialog = CustomDialogFragment()
+        customDialog.show(supportFragmentManager, "CustomDialogFragment")
     }
 
-    private fun showDatePickerDialog() {
-        // Get a calendar instance
-        val cal = Calendar.getInstance()
-
-        // Create a DatePickerDialog
-        val datePicker = DatePickerDialog(
-            this,
-            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-                Log.i(
-                    "autolog",
-                    String.format(
-                        "Date Chosen -- day: %d, month: %d, year: %d",
-                        dayOfMonth,
-                        monthOfYear,
-                        year
-                    )
-                )
-            },
-            cal.get(Calendar.YEAR),
-            cal.get(Calendar.MONTH),
-            cal.get(Calendar.DAY_OF_MONTH)
-        )
-
-        // Set the title and show the dialog
-        datePicker.setTitle("Choose a Date")
-        datePicker.show()
-    }
-
-
-    class SingleChoiceDialogFragment : DialogFragment() {
-        private val colors = arrayOf("Red", "Blue", "Green", "Yellow")
-
-        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val builder = AlertDialog.Builder(activity)
-            builder.setTitle("My title")
-
-            builder.setItems(colors) { dialog, which ->
-                Log.i(
-                    "autolog",
-                    "colors: " + colors[which]
-                )
-            }
-            return builder.create()
-        }
-    }
-
-    override fun onPositiveResult(dlg: DialogFragment) {
-        Log.i("autolog", "Dialog Positive Result")
+    override fun onPositiveResult(dlg: DialogFragment, text: String) {
+        Log.i("autolog", "onPositiveResult:$text");
     }
 
     override fun onNegativeResult(dlg: DialogFragment) {
-        Log.i("autolog", "Dialog Negative Result")
+        Log.i("autolog", "onNegativeResult:");
     }
-
-    override fun onNeutralResult(dlg: DialogFragment) {
-        Log.i("autolog", "Dialog Neutral Result")
-    }
-
-
 }
 
-class SimpleDialogFragment : DialogFragment() {
+class CustomDialogFragment : DialogFragment() {
+    private var mHost: CustomDialogListener? = null
 
-    private var mHost: SimpleDialogListener? = null
-
-    interface SimpleDialogListener {
-        fun onPositiveResult(dlg: DialogFragment)
+    interface CustomDialogListener {
+        fun onPositiveResult(dlg: DialogFragment, text: String)
         fun onNegativeResult(dlg: DialogFragment)
-        fun onNeutralResult(dlg: DialogFragment)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = AlertDialog.Builder(activity!!)
 
-        builder.setTitle("My Title")
-        builder.setMessage("My message")
-        builder.setPositiveButton("Yes") { dialog, which ->
-            mHost!!.onPositiveResult(this@SimpleDialogFragment)
-        }
-        builder.setNegativeButton("No") { dialog, which ->
-            mHost!!.onNegativeResult(this@SimpleDialogFragment)
-        }
-        builder.setNeutralButton("Neutral") { dialog, which ->
-            mHost!!.onNeutralResult(this@SimpleDialogFragment)
-        }
 
+        val builder = androidx.appcompat.app.AlertDialog.Builder(activity!!)
+
+        // Create the custom layout using the LayoutInflater class
+        val inflater = activity!!.layoutInflater
+        val v = inflater.inflate(R.layout.custom_dialog_layout, null)
+
+        val firstName = v.findViewById<EditText>(R.id.edtFirstName)
+        val lastName = v.findViewById<EditText>(R.id.edtLastName)
+
+        // Build the dialog
+        builder.setTitle("Please enter your name")
+            .setPositiveButton("OK") { dialog, which ->
+                Log.i("autolog", "OK Clicked")
+                mHost!!.onPositiveResult(this@CustomDialogFragment, "${firstName.text} ${lastName.text}")
+            }
+            .setNegativeButton("Cancel") { dialog, which ->
+                Log.i("autolog", "Cancel clicked")
+                mHost!!.onNegativeResult(this@CustomDialogFragment)
+            }
+            .setView(v)
 
         return builder.create()
     }
 
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        mHost = context as SimpleDialogListener
+        mHost = context as CustomDialogListener
     }
 }
