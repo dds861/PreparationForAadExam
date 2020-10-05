@@ -1,47 +1,39 @@
 package com.dd.preparationforaadexam
 
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.android.synthetic.main.activity_main.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 class MainActivity : AppCompatActivity() {
-
-    //2. Extract data that is being sent from the service
-    var mLocalReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val message = intent.getStringExtra(
-                MyIntentService.MESSAGE_KEY
-            )
-            Log.i("autolog", "Received: $message: ");
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-        //3. Register the receiver
-        LocalBroadcastManager.getInstance(applicationContext)
-            .registerReceiver(mLocalReceiver, IntentFilter("custom-event"))
+        //1. Register EventBus
+        EventBus.getDefault().register(this)
 
         btnStart.setOnClickListener {
-            //1. start service
+            //4. start service to send event
             val intent = Intent(this, MyIntentService::class.java)
             startService(intent)
         }
     }
 
     override fun onDestroy() {
-
-        //4. Unregister broadcastReceiver in onDestroy method
-        LocalBroadcastManager.getInstance(applicationContext).unregisterReceiver(mLocalReceiver)
+        //2. Unregister EventBus
+        EventBus.getDefault().unregister(this)
         super.onDestroy()
+    }
+
+    //3. Receive Event from EventBus
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onMessageEvent(event: MessageEvent) {
+        Log.i("autolog", "event.message: " + event.message);
     }
 }
