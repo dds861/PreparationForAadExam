@@ -2,11 +2,10 @@ package com.dd.preparationforaadexam
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : AppCompatActivity() {
@@ -16,12 +15,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         CoroutineScope(Dispatchers.Main).launch {
-            tvText.text = getText()
+            val s = getText()
         }
     }
 
     private suspend fun getText(): String {
-        delay(1000)
-        return "some text"
+        return withContext(Dispatchers.IO) {
+            return@withContext "Text from IO"
+        }
     }
 }
