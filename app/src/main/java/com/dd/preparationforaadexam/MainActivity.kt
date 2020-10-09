@@ -1,8 +1,12 @@
 package com.dd.preparationforaadexam
 
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -11,5 +15,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        CoroutineScope(Dispatchers.Main).launch {
+            tvText.text = getText()
+        }
+    }
+
+    private suspend fun getText(): String {
+        delay(1000)
+        return "some text"
     }
 }
