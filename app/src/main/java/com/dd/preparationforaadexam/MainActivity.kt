@@ -14,21 +14,25 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        btnClick.setOnClickListener {
+btnClick.setOnClickListener {
 
-            val workRequest = OneTimeWorkRequestBuilder<MyWorker>().build()
-            val workManager = WorkManager.getInstance(applicationContext)
-            workManager.enqueue(workRequest)
+    val workRequest = OneTimeWorkRequestBuilder<MyWorker>().build()
+    val workManager = WorkManager.getInstance(applicationContext)
+    workManager.enqueue(workRequest)
 
-            //Start observing the workManager and onReceive the data set it to TextView
-            workManager.getWorkInfoByIdLiveData(workRequest.id).observe(this, Observer {
-                tvText.text = when (it.state) {
-                    WorkInfo.State.SUCCEEDED -> {
-                        it.outputData.getString(DATA_KEY)
-                    }
-                    else -> "Empty"
-                }
-            })
+    workManager.getWorkInfoByIdLiveData(workRequest.id).observe(this, Observer {
+        tvText.text = when (it.state) {
+            WorkInfo.State.SUCCEEDED -> {
+                it.outputData.getString(DATA_KEY)
+            }
+
+            //1. Add State item and set it's value to TextView
+            WorkInfo.State.RUNNING -> {
+                it.progress.getString(MESSAGE_KEY)
+            }
+            else -> "Empty"
         }
+    })
+}
     }
 }
