@@ -2,9 +2,9 @@ package com.dd.preparationforaadexam
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.Constraints
-import androidx.work.NetworkType
+import androidx.lifecycle.Observer
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -16,17 +16,19 @@ class MainActivity : AppCompatActivity() {
 
         btnClick.setOnClickListener {
 
-            //The application will wait when the event of Network Connection will be available.
-            //Upon the satisfaction of this condition WorkManager will continue the work
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
+            val workRequest = OneTimeWorkRequestBuilder<MyWorker>().build()
+            val workManager = WorkManager.getInstance(applicationContext)
+            workManager.enqueue(workRequest)
 
-            //Add "constraints"
-            val workRequest = OneTimeWorkRequestBuilder<MyWorker>()
-                .setConstraints(constraints)
-                .build()
-            WorkManager.getInstance(applicationContext).enqueue(workRequest)
+            //Start observing the workManager and onReceive the data set it to TextView
+            workManager.getWorkInfoByIdLiveData(workRequest.id).observe(this, Observer {
+                tvText.text = when (it.state) {
+                    WorkInfo.State.SUCCEEDED -> {
+                        it.outputData.getString(DATA_KEY)
+                    }
+                    else -> "Empty"
+                }
+            })
         }
     }
 }
