@@ -12,6 +12,10 @@ import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 
+//1. Create 2 constants
+const val NOTIFICATION_ACTION_PLAY = "action_play"
+const val NOTIFICATION_ACTION_STOP = "action_stop"
+
 class MyService : Service() {
 
     private val binder = MyServiceBinder()
@@ -22,6 +26,12 @@ class MyService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        //5. Read the action from the Pending Intent and do the action according to Constant Keys
+        when (intent?.action) {
+            NOTIFICATION_ACTION_PLAY -> startAudio(applicationContext)
+            NOTIFICATION_ACTION_STOP -> stopAudio()
+        }
         return START_STICKY
     }
 
@@ -35,61 +45,65 @@ class MyService : Service() {
             it.start();
         }
 
-        //3. Show the notification
         displayForegroundNotification()
     }
 
     fun stopAudio() {
         player.stop()
 
-        //4. Stop the notification
         stopForeground(false)
     }
 
-    //2. Display Notification
     private fun displayForegroundNotification() {
 
-        //2.1. Check the platform version
         val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel()
         } else {
             ""
         }
 
-        //2.2. Create PendingIntent
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent =
             PendingIntent.getActivity(this, 0, notificationIntent, 0)
 
-        //2.3. Create Notification
+        //3. Create 2 PendingIntents for play and stop audio
+        val playIntent = getPendingIntent(NOTIFICATION_ACTION_PLAY)
+        val stopIntent = getPendingIntent(NOTIFICATION_ACTION_STOP)
+
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Playing music")
             .setContentText("any Text")
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setContentIntent(pendingIntent)
+            .addAction(0, "Play", playIntent) //4. Add 2 PendingIntents as actions to Notification
+            .addAction(0, "Stop", stopIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setWhen(0)
             .build()
 
-        //2.4. Start the notification
         startForeground(1001, notification)
 
     }
 
-    //1. Create Notification channel
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel(): String {
         val channelId = "my_service"
         val channelName = "Music Service"
 
-        //1.2. Create NotificationChannel
         val notificationChannel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE)
         notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
 
-        //1.3. Create NotificationManager
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(notificationChannel)
 
         return channelId
+    }
+
+    //2. Create function that will get PendingIntent
+    private fun getPendingIntent(action: String): PendingIntent {
+        val serviceIntent = Intent(this, MyService::class.java).also {
+            it.action = action
+        }
+        return PendingIntent.getService(this, 0, serviceIntent, 0)
     }
 }

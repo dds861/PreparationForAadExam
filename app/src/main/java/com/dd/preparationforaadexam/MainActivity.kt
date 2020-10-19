@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //1. Start and Stop audio
         btnStart.setOnClickListener { myService.startAudio(this) }
         btnStop.setOnClickListener { myService.stopAudio() }
     }
