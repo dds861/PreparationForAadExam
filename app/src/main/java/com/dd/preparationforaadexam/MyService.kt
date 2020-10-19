@@ -3,6 +3,7 @@ package com.dd.preparationforaadexam
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.net.Uri
@@ -12,7 +13,6 @@ import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 
-//1. Create 2 constants
 const val NOTIFICATION_ACTION_PLAY = "action_play"
 const val NOTIFICATION_ACTION_STOP = "action_stop"
 
@@ -27,7 +27,6 @@ class MyService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        //5. Read the action from the Pending Intent and do the action according to Constant Keys
         when (intent?.action) {
             NOTIFICATION_ACTION_PLAY -> startAudio(applicationContext)
             NOTIFICATION_ACTION_STOP -> stopAudio()
@@ -66,19 +65,26 @@ class MyService : Service() {
         val pendingIntent =
             PendingIntent.getActivity(this, 0, notificationIntent, 0)
 
-        //3. Create 2 PendingIntents for play and stop audio
         val playIntent = getPendingIntent(NOTIFICATION_ACTION_PLAY)
         val stopIntent = getPendingIntent(NOTIFICATION_ACTION_STOP)
+
+        //1. Create Bitmap object
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_background)
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Playing music")
             .setContentText("any Text")
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setContentIntent(pendingIntent)
-            .addAction(0, "Play", playIntent) //4. Add 2 PendingIntents as actions to Notification
+            .addAction(0, "Play", playIntent)
             .addAction(0, "Stop", stopIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setWhen(0)
+            .setStyle(//2. Create style
+                NotificationCompat.BigPictureStyle()
+                    .bigPicture(bitmap)//3. Add Image
+                    .setSummaryText("someText")//4. Add Summary Text
+            )
             .build()
 
         startForeground(1001, notification)
@@ -99,7 +105,6 @@ class MyService : Service() {
         return channelId
     }
 
-    //2. Create function that will get PendingIntent
     private fun getPendingIntent(action: String): PendingIntent {
         val serviceIntent = Intent(this, MyService::class.java).also {
             it.action = action
