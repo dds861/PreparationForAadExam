@@ -9,35 +9,29 @@ import com.dd.preparationforaadexam.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
-    //1. Create Binding variable
     private lateinit var binding: ActivityMainBinding
-
-    //4. Create MainViewModel variable
     private lateinit var viewModel: MainViewModel
+
+    //1. Create MainViewModelFactory variable
+    private lateinit var viewModelFactory: MainViewModelFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //2. inflate binding
         binding = ActivityMainBinding.inflate(layoutInflater)
-
-        //3. set binding.root to ContentView
         setContentView(binding.root)
 
-        //5. Instantiate viewModel variable
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        //2. Instantiate MainViewModelFactory with random text
+        viewModelFactory = MainViewModelFactory("Starting text")
 
-        //6. Start observing "data" variable in MainViewModel
+        //3. set "viewModelFactory" to ViewModelProvider
+        viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
+
         viewModel.data.observe(this, Observer {
-
-            //7. Set data to TextView
             binding.tvText.text = it
 
         })
 
-        //4. setOnClickListener on button
         binding.btnSetRandomText.setOnClickListener {
-
-            //8. set String value to "data" variable in MainViewModel
             viewModel.data.postValue("text")
 
         }
