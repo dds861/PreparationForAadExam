@@ -1,5 +1,6 @@
 package com.dd.preparationforaadexam.data
 
+import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -12,7 +13,7 @@ interface WordDao {
     suspend fun insert(word: Word)
 
     @Query("SELECT * FROM myTable ORDER BY _id")
-    fun getList(): Flow<List<Word>>
+    fun getList(): DataSource.Factory<Int, Word>
 
     @Query("SELECT * FROM myTable WHERE _id= :id")
     fun getWord(id: Long): Flow<Word>

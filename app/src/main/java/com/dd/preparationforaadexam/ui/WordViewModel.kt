@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagedList
 import com.dd.preparationforaadexam.data.Word
 import com.dd.preparationforaadexam.data.WordRepository
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +14,7 @@ class WordViewModel(
         private val wordRepository: WordRepository
 ) : ViewModel() {
 
-    val words: LiveData<List<Word>> = wordRepository.allWords.asLiveData()
+    val words: LiveData<PagedList<Word>> = wordRepository.allWords
 
     fun getWord(id: Long): LiveData<Word> {
         return wordRepository.getWord(id).asLiveData()

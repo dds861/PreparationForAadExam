@@ -1,18 +1,18 @@
 package com.dd.preparationforaadexam.ui
 
 import android.view.ViewGroup
+import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import com.dd.preparationforaadexam.data.Word
 
-class WordListAdapter : ListAdapter<Word, WordViewHolder>(DIFF_CALLBACK) {
+class WordListAdapter : PagedListAdapter<Word, WordViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WordViewHolder {
         return WordViewHolder.create(parent)
     }
 
     override fun onBindViewHolder(holder: WordViewHolder, position: Int) {
-        getItem(position).let { holder.bind(it) }
+        getItem(position)?.let { holder.bind(it) }
     }
 
     companion object {
