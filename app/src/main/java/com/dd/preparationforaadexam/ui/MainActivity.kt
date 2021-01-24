@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerview.layoutManager = LinearLayoutManager(this)
 
         wordViewModel.words.observe(this, Observer { words ->
-            adapter.setWords(words)
+            adapter.submitList(words)
         })
 
         wordViewModel.getWord(2).observe(this, Observer { Log.i(TAG, "onCreate: $it") })
