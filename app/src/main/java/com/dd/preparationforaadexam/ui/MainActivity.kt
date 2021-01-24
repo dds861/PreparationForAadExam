@@ -6,10 +6,14 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dd.preparationforaadexam.WordsApplication
 import com.dd.preparationforaadexam.data.Word
 import com.dd.preparationforaadexam.databinding.ActivityMainBinding
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,9 +34,12 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerview.adapter = adapter
         binding.recyclerview.layoutManager = LinearLayoutManager(this)
 
-        wordViewModel.words.observe(this, Observer { words ->
-            adapter.submitList(words)
-        })
+        lifecycleScope.launch {
+            @OptIn(ExperimentalCoroutinesApi::class)
+            wordViewModel.words.collectLatest {
+                adapter.submitData(it)
+            }
+        }
 
         wordViewModel.getWord(2).observe(this, Observer { Log.i(TAG, "onCreate: $it") })
 

@@ -1,13 +1,16 @@
 package com.dd.preparationforaadexam.data
 
-import androidx.lifecycle.LiveData
-import androidx.paging.PagedList
-import androidx.paging.toLiveData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 
 class WordRepository(private val wordDao: WordDao) {
 
-    val allWords: LiveData<PagedList<Word>> = wordDao.getList().toLiveData(pageSize = 5)
+    val allWords: Flow<PagingData<Word>> = Pager(
+        config = PagingConfig(pageSize = 5, enablePlaceholders = false, prefetchDistance = 7),
+        pagingSourceFactory = { wordDao.getList() }
+    ).flow
 
     suspend fun insert(word: Word) {
         wordDao.insert(word)
